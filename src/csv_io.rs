@@ -1,12 +1,16 @@
 use serde_derive::{Deserialize, Serialize};
-use std::fmt::Display;
+use core::prelude;
+use std::{fmt::Display, path::PathBuf};
 
 const ABS_HEADERS: [&str; 3] = ["temp", "x", "y"];
+const DIF_HEADERS: [&str; 3] = ["temp", "dx", "dy"];
 
 #[derive(Default, Debug, Deserialize, Serialize, PartialEq, Clone, Copy)]
 struct DataRow {
     temp: Option<i32>,
+    #[serde(rename(serialize = "dx"))]
     x: Option<i32>,
+    #[serde(rename(serialize = "dy"))]
     y: Option<i32>,
 }
 
@@ -52,14 +56,14 @@ impl Display for DataFrame {
                 write!(f, "{:3}; ", frame.temp.unwrap()).unwrap();
             }
 
-            write!(f, "{}: ", if self.diff {"dx"} else {"x"}).unwrap();
+            write!(f, "{}: ", if self.diff { "dx" } else { "x" }).unwrap();
             if frame.x == None {
                 write!(f, "nan; ").unwrap();
             } else {
                 write!(f, "{:3}; ", frame.x.unwrap()).unwrap();
             }
 
-            write!(f, "{}: ", if self.diff {"dy"} else {"y"}).unwrap();
+            write!(f, "{}: ", if self.diff { "dy" } else { "y" }).unwrap();
             if frame.y == None {
                 write!(f, "nan;").unwrap();
             } else {
@@ -116,7 +120,34 @@ impl DataFrame {
     }
 
     fn sort(&mut self) {
-        self.frames.sort_by(|a, b| a.temp.unwrap().partial_cmp(&b.temp.unwrap()).unwrap());
+        self.frames
+            .sort_by(|a, b| a.temp.unwrap().partial_cmp(&b.temp.unwrap()).unwrap());
+    }
+
+    pub fn calc(&self) -> Self {
+        let mut item = Self::default();
+
+        for i in (-50..=70).step_by(6) {
+            let tail: Vec<DataRow> = self
+                .frames
+                .iter()
+                .filter(|row| i - 3 <= row.temp.unwrap() && row.temp.unwrap() <= i + 3)
+                .cloned()
+                .collect();
+            let x = tail.iter().fold(0, |x, row| x + row.x.unwrap()) / (tail.len() as i32);
+            let y = tail.iter().fold(0, |y, row| y + row.y.unwrap()) / (tail.len() as i32);
+            item.frames.push(DataRow { temp: Some(i), x: Some(x), y: Some(y) });
+        }
+        item
+    }
+
+    pub fn save_file(self, path: &str) {
+        let mut writer = csv::Writer::from_path(path).unwrap();
+
+        for data in self.frames.into_iter() {
+            writer.serialize(data).unwrap();
+        }
+        writer.flush().unwrap();
     }
 }
 
@@ -127,7 +158,9 @@ fn open_csv() {
 
     let data_frame = DataFrame::from_path(TEST_FILE);
     println!("{}", data_frame);
+    let calc_frame = data_frame.calc();
+    println!("{}", calc_frame);
 
-    let data_frame = DataFrame::from_path(WRONG_FILE);
-    println!("{}", data_frame);
+    let new_path = &TEST_FILE.replace(".csv", "_auto_model.txt")[..];
+    calc_frame.save_file(new_path);
 }
