@@ -1,6 +1,5 @@
 use serde_derive::{Deserialize, Serialize};
-use core::prelude;
-use std::{fmt::Display, path::PathBuf};
+use std::fmt::Display;
 
 const ABS_HEADERS: [&str; 3] = ["temp", "x", "y"];
 const DIF_HEADERS: [&str; 3] = ["temp", "dx", "dy"];
@@ -16,25 +15,25 @@ struct DataRow {
 
 impl Display for DataRow {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "temp: ").unwrap();
+        write!(f, "temp: ")?;
         if self.temp == None {
-            write!(f, "nan; ").unwrap();
+            write!(f, "nan; ")?;
         } else {
-            write!(f, "{:3}; ", self.temp.unwrap()).unwrap();
+            write!(f, "{:3}; ", self.temp.unwrap())?;
         }
 
-        write!(f, "x: ").unwrap();
+        write!(f, "x: ")?;
         if self.x == None {
-            write!(f, "nan; ").unwrap();
+            write!(f, "nan; ")?;
         } else {
-            write!(f, "{:3}; ", self.x.unwrap()).unwrap();
+            write!(f, "{:3}; ", self.x.unwrap())?;
         }
 
-        write!(f, "y: ").unwrap();
+        write!(f, "y: ")?;
         if self.y == None {
-            write!(f, "nan;").unwrap();
+            write!(f, "nan;")?;
         } else {
-            write!(f, "{:3};", self.y.unwrap()).unwrap();
+            write!(f, "{:3};", self.y.unwrap())?;
         }
         Ok(())
     }
@@ -49,27 +48,27 @@ struct DataFrame {
 impl Display for DataFrame {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         for frame in self.frames.iter() {
-            write!(f, "temp: ").unwrap();
+            write!(f, "temp: ")?;
             if frame.temp == None {
-                write!(f, "nan; ").unwrap();
+                write!(f, "nan; ")?;
             } else {
-                write!(f, "{:3}; ", frame.temp.unwrap()).unwrap();
+                write!(f, "{:3}; ", frame.temp.unwrap())?;
             }
 
-            write!(f, "{}: ", if self.diff { "dx" } else { "x" }).unwrap();
+            write!(f, "{}: ", if self.diff { "dx" } else { "x" })?;
             if frame.x == None {
-                write!(f, "nan; ").unwrap();
+                write!(f, "nan; ")?;
             } else {
-                write!(f, "{:3}; ", frame.x.unwrap()).unwrap();
+                write!(f, "{:3}; ", frame.x.unwrap())?;
             }
 
-            write!(f, "{}: ", if self.diff { "dy" } else { "y" }).unwrap();
+            write!(f, "{}: ", if self.diff { "dy" } else { "y" })?;
             if frame.y == None {
-                write!(f, "nan;").unwrap();
+                write!(f, "nan;")?;
             } else {
-                write!(f, "{:3};", frame.y.unwrap()).unwrap();
+                write!(f, "{:3};", frame.y.unwrap())?;
             }
-            writeln!(f).unwrap();
+            writeln!(f)?;
         }
         Ok(())
     }
@@ -136,7 +135,11 @@ impl DataFrame {
                 .collect();
             let x = tail.iter().fold(0, |x, row| x + row.x.unwrap()) / (tail.len() as i32);
             let y = tail.iter().fold(0, |y, row| y + row.y.unwrap()) / (tail.len() as i32);
-            item.frames.push(DataRow { temp: Some(i), x: Some(x), y: Some(y) });
+            item.frames.push(DataRow {
+                temp: Some(i),
+                x: Some(x),
+                y: Some(y),
+            });
         }
         item
     }
