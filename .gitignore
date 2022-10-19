@@ -1,2 +1,7 @@
 /target
 /.vscode
+
+/test/*
+!/test/test_data.csv
+!/test/old_data.txt
+!/test/test_data_auto_model.txt

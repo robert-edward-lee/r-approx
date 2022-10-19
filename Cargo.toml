@@ -1,6 +1,6 @@
 [package]
 name = "r-approx"
-version = "0.0.3"
+version = "0.1.0"
 authors = ["Roman Bolgov"]
 description = "TPK-K thermocompensator"
 edition = "2021"
@@ -9,6 +9,3 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-csv = "1.1"
-serde = "1.0"
-serde_derive = "1.0"
