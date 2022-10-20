@@ -127,7 +127,7 @@ fn test_auto_model() {
 }
 
 #[test]
-fn test_plotter() {
+fn test_plot() {
     const TEST_PATH: &str = "test/test_data.csv";
 
     let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
