@@ -111,9 +111,9 @@ fn plot_area(
                 (pairs[0].0..=average).map(|_x| (_x, pairs[0].1)),
                 STEPPED_LINE_STYLE,
             ))?;
-            // TODO: пофиксить баг, этот итератор не срабатывает при вызове для ГН!!!
+
             chart.draw_series(LineSeries::new(
-                (pairs[0].1..=pairs[1].1).map(|_y| (average, _y)),
+                (min(pairs[0].1, pairs[1].1)..=max(pairs[0].1, pairs[1].1)).map(|_y| (average, _y)),
                 STEPPED_LINE_STYLE,
             ))?;
 
