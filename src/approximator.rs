@@ -49,3 +49,10 @@ impl Approximator {
             .save_file(&auto_model_path(&self.source_path))
     }
 }
+
+#[test]
+fn test_auto_model() {
+    let test_auto_model = DataFrame::from_path("test/test_data.csv").unwrap().calc();
+    let auto_model = DataFrame::from_path("test/test_data_auto_model.txt").unwrap();
+    assert_eq!(test_auto_model.rows, auto_model.rows);
+}

@@ -115,30 +115,28 @@ impl DataFrame {
         self.rows.dedup();
     }
 
-    /*
-        /// вычисление аппроксимированных координат
-        pub fn calc(&self) -> Result<Self, Box<dyn Error>> {
-            let mut item = Self::default();
+    /// вычисление аппроксимированных координат
+    pub fn calc(&self) -> Self {
+        let mut item = Self::default();
 
-            for temp in (-50..=70).step_by(6) {
-                let tail: Vec<DataRow> = self
-                    .frames
-                    .iter()
-                    .filter(|row| temp - 3 <= row.temp.unwrap() && row.temp.unwrap() <= temp + 3)
-                    .cloned()
-                    .collect();
-                let x = tail.iter().fold(0, |x, row| x + row.x.unwrap()) / (tail.len() as i32);
-                let y = tail.iter().fold(0, |y, row| y + row.y.unwrap()) / (tail.len() as i32);
-                item.frames.push(DataRow {
-                    temp: Some(temp),
-                    x: Some(x),
-                    y: Some(y),
-                });
-            }
-            item.diff = true;
-            Ok(item)
+        for temp in (-50..=70).step_by(6) {
+            let tail: Vec<DataRow> = self
+                .rows
+                .iter()
+                .filter(|row| temp - 3 <= row.temp.unwrap() && row.temp.unwrap() <= temp + 3)
+                .cloned()
+                .collect();
+            let x = tail.iter().fold(0, |x, row| x + row.x.unwrap()) / (tail.len() as i32);
+            let y = tail.iter().fold(0, |y, row| y + row.y.unwrap()) / (tail.len() as i32);
+            item.rows.push(DataRow {
+                temp: Some(temp),
+                x: Some(x),
+                y: Some(y),
+            });
         }
-    */
+        item
+    }
+
     /// сохранить csv файл
     pub fn save_file(&self, path: &str) -> Result<(), Box<dyn Error>> {
         fs::write(path, self.to_string().as_bytes())?;
@@ -632,4 +630,13 @@ fn file_to_frame() {
             }
         ]
     );
+}
+
+#[test]
+fn calc_auto_model() {
+    DataFrame::from_path("test/test_data.csv")
+        .unwrap()
+        .calc()
+        .save_file("test/test_data_auto_model.txt")
+        .unwrap();
 }
