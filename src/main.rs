@@ -1,3 +1,3 @@
-mod approximator;
+mod thermo_model;
 
 fn main() {}
