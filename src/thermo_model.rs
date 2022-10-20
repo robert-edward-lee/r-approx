@@ -11,14 +11,17 @@ pub struct ThermoModel {
     source_path: String,
 }
 
-fn path_with_suffix(path: &str, suffix: &str) -> String {
-    let chunks: Vec<&str> = path.split('.').collect();
+fn abs_path(path: &str, suffix: &str) -> Result<String, Box<dyn Error>> {
+    let abs_path = std::env::current_dir().unwrap().to_str().unwrap().to_owned() + "/" + path;
+
+    let chunks: Vec<&str> = abs_path.split('.').collect();
 
     let mut new_path = "".to_string();
     for chunk in chunks.iter().take(chunks.len() - 1) {
         new_path += chunk;
     }
-    new_path + suffix
+
+    Ok(new_path + suffix)
 }
 
 impl Display for ThermoModel {
@@ -35,6 +38,7 @@ impl ThermoModel {
     pub fn from_path(path: &str, recalc: bool) -> Result<Self, Box<dyn Error>> {
         let mut item = ThermoModel {
             raw_data: DataFrame::from_path(path)?,
+            source_path: path.to_string(),
             ..Default::default()
         };
 
@@ -42,23 +46,22 @@ impl ThermoModel {
             item.calc_data = item.raw_data.calc();
             item.save_auto_model()?;
         } else {
-            item.calc_data = DataFrame::from_path(&path_with_suffix(path, "_auto_model.txt"))?;
+            item.calc_data = DataFrame::from_path(&abs_path(path, "_auto_model.txt")?)?;
         };
-        item.source_path = path.to_string();
 
         Ok(item)
     }
 
     fn save_auto_model(&self) -> Result<(), Box<dyn Error>> {
         self.calc_data
-            .save_file(&path_with_suffix(&self.source_path, "_auto_model.txt"))
+            .save_file(&abs_path(&self.source_path, "_auto_model.txt")?)
     }
 
     pub fn plot(&self, serial_number: &str) -> Result<(), Box<dyn Error>> {
         const RESOLUTION: (u32, u32) = (1800, 1100);
 
         plotter::plot(
-            &path_with_suffix(&self.source_path, "_with_model.png"),
+            &abs_path(&self.source_path, "_with_model.png")?,
             serial_number,
             RESOLUTION,
             self.raw_data
@@ -94,6 +97,10 @@ fn test_auto_model() {
 
 #[test]
 fn test_plotter() {
-    let model = ThermoModel::from_path("test/test_data.csv", false).unwrap();
-    model.plot("БЛН...").unwrap();
+    const TEST_PATH: &str = "test/test_data.csv";
+
+    let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
+    model.plot("TEST").unwrap();
+
+    opener::open(abs_path(TEST_PATH, "_with_model.png").unwrap()).unwrap();
 }

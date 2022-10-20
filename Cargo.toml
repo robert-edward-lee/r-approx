@@ -1,6 +1,6 @@
 [package]
 name = "r-approx"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Roman Bolgov"]
 description = "TPK-K thermocompensator"
 edition = "2021"
@@ -8,3 +8,4 @@ publish = false
 
 [dependencies]
 plotters = "0.3"
+opener = "0.5"
