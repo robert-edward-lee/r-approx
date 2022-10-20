@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display};
+use std::error::Error;
 
 /// Структура данных для отдельной строки csv файла
 #[derive(Default, Debug, PartialEq, Eq, Clone)]
@@ -8,7 +8,7 @@ pub struct DataRow {
     pub y: Option<i32>,
 }
 
-impl Display for DataRow {
+impl std::fmt::Display for DataRow {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.temp {
             Some(val) => write!(f, "{};", val)?,

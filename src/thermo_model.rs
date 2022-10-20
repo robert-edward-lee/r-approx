@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display};
+use std::error::Error;
 
 mod frame;
 use frame::DataFrame;
@@ -24,12 +24,38 @@ fn abs_path(path: &str, suffix: &str) -> Result<String, Box<dyn Error>> {
     Ok(new_path + suffix)
 }
 
-impl Display for ThermoModel {
+impl std::fmt::Display for ThermoModel {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        writeln!(f, "Raw data:")?;
-        writeln!(f, "{}", self.raw_data)?;
-        writeln!(f, "Calc data:")?;
-        writeln!(f, "{}", self.calc_data)?;
+        write!(f, "|      |")?;
+        for (i, _) in self.calc_data.rows.iter().enumerate() {
+            write!(f, "  {:2} |", i)?;
+        }
+        writeln!(f)?;
+
+        write!(f, "|:-----|")?;
+        for (_, _) in self.calc_data.rows.iter().enumerate() {
+            write!(f, "----:|")?;
+        }
+        writeln!(f)?;
+
+        write!(f, "| temp |")?;
+        for row in self.calc_data.rows.iter() {
+            write!(f, " {:3} |", row.temp.unwrap())?;
+        }
+        writeln!(f)?;
+
+        write!(f, "| dx   |")?;
+        for row in self.calc_data.rows.iter() {
+            write!(f, " {:3} |", row.x.unwrap())?;
+        }
+        writeln!(f)?;
+
+        write!(f, "| dy   |")?;
+        for row in self.calc_data.rows.iter() {
+            write!(f, " {:3} |", row.y.unwrap())?;
+        }
+        writeln!(f)?;
+
         Ok(())
     }
 }
@@ -86,6 +112,11 @@ impl ThermoModel {
                 .collect::<Vec<(i32, i32)>>(),
         )
     }
+
+    pub fn md(&self) -> Result<(), Box<dyn Error>> {
+        std::fs::write(abs_path(&self.source_path, "_model.md")?, self.to_string().as_bytes())?;
+        Ok(())
+    }
 }
 
 #[test]
@@ -103,4 +134,12 @@ fn test_plotter() {
     model.plot("TEST").unwrap();
 
     opener::open(abs_path(TEST_PATH, "_with_model.png").unwrap()).unwrap();
+}
+
+#[test]
+fn test_md() {
+    const TEST_PATH: &str = "test/test_data.csv";
+
+    let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
+    model.md().unwrap();
 }

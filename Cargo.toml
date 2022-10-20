@@ -1,6 +1,6 @@
 [package]
 name = "r-approx"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Roman Bolgov"]
 description = "TPK-K thermocompensator"
 edition = "2021"

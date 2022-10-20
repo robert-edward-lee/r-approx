@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display, fs};
+use std::{error::Error, fs};
 
 mod row;
 use row::DataRow;
@@ -12,7 +12,7 @@ pub struct DataFrame {
     pub rows: Vec<DataRow>,
 }
 
-impl Display for DataFrame {
+impl std::fmt::Display for DataFrame {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if self.rows.is_empty() {
             write!(f, "<nil>")?;
