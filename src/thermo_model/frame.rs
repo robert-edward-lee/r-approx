@@ -126,12 +126,14 @@ impl DataFrame {
                 .filter(|row| temp - 3 <= row.temp.unwrap() && row.temp.unwrap() <= temp + 3)
                 .cloned()
                 .collect();
-            let x = tail.iter().fold(0, |x, row| x + row.x.unwrap()) / (tail.len() as i32);
-            let y = tail.iter().fold(0, |y, row| y + row.y.unwrap()) / (tail.len() as i32);
+
+            let xs: Vec<i32> = tail.iter().map(|row| row.x.unwrap()).collect();
+            let ys: Vec<i32> = tail.iter().map(|row| row.y.unwrap()).collect();
+
             item.rows.push(DataRow {
                 temp: Some(temp),
-                x: Some(x),
-                y: Some(y),
+                x: Some(median(xs)),
+                y: Some(median(ys)),
             });
         }
         item
@@ -141,6 +143,16 @@ impl DataFrame {
     pub fn save_file(&self, path: &str) -> Result<(), Box<dyn Error>> {
         fs::write(path, self.to_string().as_bytes())?;
         Ok(())
+    }
+}
+
+fn median(mut data: Vec<i32>) -> i32 {
+    let len = data.len();
+    data.sort();
+    if len % 2 == 1 {
+        data[len / 2]
+    } else {
+        (data[len / 2] + data[len / 2]) / 2
     }
 }
 
