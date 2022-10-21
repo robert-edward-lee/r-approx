@@ -119,22 +119,24 @@ impl DataFrame {
     pub fn calc(&self) -> Self {
         let mut item = Self::default();
 
+        let (mut past_x, mut past_y) = (0, 0);
         for temp in (-50..=70).step_by(6) {
-            let tail: Vec<DataRow> = self
+            let tail: Vec<(i32, i32)> = self
                 .rows
                 .iter()
                 .filter(|row| temp - 3 <= row.temp.unwrap() && row.temp.unwrap() <= temp + 3)
-                .cloned()
+                .map(|row| (row.x.unwrap(), row.y.unwrap()))
                 .collect();
 
-            let xs: Vec<i32> = tail.iter().map(|row| row.x.unwrap()).collect();
-            let ys: Vec<i32> = tail.iter().map(|row| row.y.unwrap()).collect();
+            let x = median(tail.iter().map(|(x, _)| *x).collect()).unwrap_or(past_x);
+            let y = median(tail.iter().map(|(_, y)| *y).collect()).unwrap_or(past_y);
 
             item.rows.push(DataRow {
                 temp: Some(temp),
-                x: Some(median(xs)),
-                y: Some(median(ys)),
+                x: Some(x),
+                y: Some(y),
             });
+            (past_x, past_y) = (x, y);
         }
         item
     }
@@ -146,13 +148,17 @@ impl DataFrame {
     }
 }
 
-fn median(mut data: Vec<i32>) -> i32 {
+fn median(mut data: Vec<i32>) -> Option<i32> {
     let len = data.len();
+    if len == 0 {
+        None?
+    }
+
     data.sort();
     if len % 2 == 1 {
-        data[len / 2]
+        Some(data[len / 2])
     } else {
-        (data[len / 2] + data[len / 2]) / 2
+        Some((data[len / 2] + data[len / 2]) / 2)
     }
 }
 
