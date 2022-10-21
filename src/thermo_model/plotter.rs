@@ -1,7 +1,7 @@
 use plotters::{
     coord::Shift,
     prelude::*,
-    style::full_palette::{DEEPORANGE_300, LIGHTBLUE_600, TEAL_400},
+    style::full_palette::{DEEPORANGE, LIGHTBLUE_600, TEAL_400},
 };
 use std::cmp::{max, min};
 use std::error::Error;
@@ -11,17 +11,28 @@ const FONT: &str = "sans-serif";
 const X_HEADER: &str = "ГН";
 const Y_HEADER: &str = "ВН";
 
-const STEPPED_LINE_STYLE: ShapeStyle = ShapeStyle {
-    color: RGBAColor(TEAL_400.0, TEAL_400.1, TEAL_400.2, 1.0),
-    filled: true,
-    stroke_width: 2,
-};
 const CENTER_LINE_STYLE: ShapeStyle = ShapeStyle {
     color: RGBAColor(BLACK.0, BLACK.1, BLACK.2, 1.0),
     filled: true,
     stroke_width: 1,
 };
+const STEPPED_LINE_STYLE: ShapeStyle = ShapeStyle {
+    color: RGBAColor(TEAL_400.0, TEAL_400.1, TEAL_400.2, 1.0),
+    filled: true,
+    stroke_width: 2,
+};
+
 const MARK_SIZE: u32 = 5;
+const RAW_MARK_STYLE: ShapeStyle = ShapeStyle {
+    color: RGBAColor(LIGHTBLUE_600.0, LIGHTBLUE_600.1, LIGHTBLUE_600.2, 1.0),
+    filled: true,
+    stroke_width: 1,
+};
+const CALC_MARK_STYLE: ShapeStyle = ShapeStyle {
+    color: RGBAColor(DEEPORANGE.0, DEEPORANGE.1, DEEPORANGE.2, 1.0),
+    filled: true,
+    stroke_width: 1,
+};
 
 pub fn plot(
     path: &str,
@@ -89,13 +100,13 @@ fn plot_area(
     chart.draw_series(
         raw_data
             .iter()
-            .map(|coord| Circle::new(*coord, MARK_SIZE, LIGHTBLUE_600.filled())),
+            .map(|coord| Circle::new(*coord, MARK_SIZE, RAW_MARK_STYLE)),
     )?;
 
     chart.draw_series(
         calc_data
             .iter()
-            .map(|coord| TriangleMarker::new(*coord, MARK_SIZE, DEEPORANGE_300.filled())),
+            .map(|coord| TriangleMarker::new(*coord, MARK_SIZE, CALC_MARK_STYLE)),
     )?;
 
     for pairs in calc_data.windows(2) {

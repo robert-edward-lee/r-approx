@@ -85,9 +85,10 @@ impl ThermoModel {
 
     pub fn plot(&self, serial_number: &str) -> Result<(), Box<dyn Error>> {
         const RESOLUTION: (u32, u32) = (1800, 1100);
+        let img_path = abs_path(&self.source_path, "_with_model.png")?;
 
         plotter::plot(
-            &abs_path(&self.source_path, "_with_model.png")?,
+            &img_path,
             serial_number,
             RESOLUTION,
             self.raw_data
@@ -110,15 +111,19 @@ impl ThermoModel {
                 .iter()
                 .map(|row| (row.temp.unwrap(), row.y.unwrap()))
                 .collect::<Vec<(i32, i32)>>(),
-        )
+        )?;
+        opener::open(&img_path)?;
+        Ok(())
     }
 
     pub fn md(&self) -> Result<(), Box<dyn Error>> {
-        std::fs::write(abs_path(&self.source_path, "_model.md")?, self.to_string().as_bytes())?;
+        std::fs::write(
+            &abs_path(&self.source_path, "_model.md")?,
+            self.to_string().as_bytes(),
+        )?;
         Ok(())
     }
 }
-
 
 #[test]
 fn test_plot() {
@@ -126,8 +131,6 @@ fn test_plot() {
 
     let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
     model.plot("TEST").unwrap();
-
-    opener::open(abs_path(TEST_PATH, "_with_model.png").unwrap()).unwrap();
 }
 
 #[test]
