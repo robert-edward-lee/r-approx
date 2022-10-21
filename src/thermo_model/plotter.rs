@@ -81,7 +81,7 @@ fn plot_area(
     chart
         .configure_mesh()
         .x_labels(21)
-        .max_light_lines(2)
+        .y_labels((y_max.abs() + y_min.abs()) as usize)
         .label_style((FONT, MAIN_HEADER_SIZE / 2))
         .x_label_formatter(&|x| {
             if *x == -56 {
