@@ -536,7 +536,6 @@ fn file_to_frame() {
             }
         ]
     );
-
     let frame = DataFrame::from_path("test/test_data_auto_model.txt").unwrap();
     assert_eq!(
         frame.rows,
@@ -548,8 +547,8 @@ fn file_to_frame() {
             },
             DataRow {
                 temp: Some(-44),
-                x: Some(1),
-                y: Some(-2)
+                x: Some(2),
+                y: Some(-3)
             },
             DataRow {
                 temp: Some(-38),
@@ -613,7 +612,7 @@ fn file_to_frame() {
             },
             DataRow {
                 temp: Some(34),
-                x: Some(0),
+                x: Some(-1),
                 y: Some(0)
             },
             DataRow {

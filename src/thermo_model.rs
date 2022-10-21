@@ -79,13 +79,13 @@ impl ThermoModel {
         Ok(item)
     }
 
-    pub fn plot(&self, serial_number: &str) -> Result<(), Box<dyn Error>> {
+    pub fn plot(&self) -> Result<(), Box<dyn Error>> {
         const RESOLUTION: (u32, u32) = (1800, 1100);
         let img_path = abs_path(&self.source_path, "_with_model.png")?;
 
         plotter::plot(
             &img_path,
-            serial_number,
+            &self.serial_number,
             RESOLUTION,
             self.raw_data
                 .rows
@@ -150,28 +150,12 @@ impl ThermoModel {
 }
 
 #[test]
-fn test_plot() {
-    const TEST_PATH: &str = "test/test_data.csv";
-
-    let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
-    model.plot("TEST").unwrap();
-}
-
-#[test]
-fn test_md() {
-    const TEST_PATH: &str = "test/test_data.csv";
-
-    let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
-    model.md().unwrap();
-}
-
-#[test]
 fn full_test() {
     let model = ThermoModel::from_path("test/test_data.csv", true).unwrap();
     model.md().unwrap();
-    model.plot("TEST").unwrap();
+    model.plot().unwrap();
 
     let model = ThermoModel::from_path("test/old_data.txt", true).unwrap();
     model.md().unwrap();
-    model.plot("TEST").unwrap();
+    model.plot().unwrap();
 }

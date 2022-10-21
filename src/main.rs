@@ -40,15 +40,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         .get_one::<String>("predict")
         .unwrap_or_else(|| args.get_one::<String>("validate").unwrap_or(&binding));
 
-    let binding = String::default();
-    let serial_number = args.get_one::<String>("serial_number").unwrap_or(&binding);
-
     let mut model = ThermoModel::from_path(path, recalc)?;
-    model.with_serial_number(serial_number);
 
-    model.plot(serial_number)?;
+    if args.contains_id("serial_number") {
+        model.with_serial_number(args.get_one::<String>("serial_number").unwrap());
+        model.ct()?;
+    }
+
+    model.plot()?;
     model.md()?;
-    model.ct()?;
 
     Ok(())
 }
