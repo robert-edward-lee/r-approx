@@ -119,12 +119,6 @@ impl ThermoModel {
     }
 }
 
-#[test]
-fn test_auto_model() {
-    let test_auto_model = DataFrame::from_path("test/test_data.csv").unwrap().calc();
-    let auto_model = DataFrame::from_path("test/test_data_auto_model.txt").unwrap();
-    assert_eq!(test_auto_model.rows, auto_model.rows);
-}
 
 #[test]
 fn test_plot() {
@@ -142,4 +136,15 @@ fn test_md() {
 
     let model = ThermoModel::from_path(TEST_PATH, false).unwrap();
     model.md().unwrap();
+}
+
+#[test]
+fn full_test() {
+    let model = ThermoModel::from_path("test/test_data.csv", true).unwrap();
+    model.md().unwrap();
+    model.plot("TEST").unwrap();
+
+    let model = ThermoModel::from_path("test/old_data.txt", true).unwrap();
+    model.md().unwrap();
+    model.plot("TEST").unwrap();
 }
