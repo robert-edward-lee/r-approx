@@ -9,6 +9,7 @@ pub struct ThermoModel {
     raw_data: DataFrame,
     calc_data: DataFrame,
     source_path: String,
+    serial_number: String,
 }
 
 fn abs_path(path: &str, suffix: &str) -> Result<String, Box<dyn Error>> {
@@ -70,17 +71,12 @@ impl ThermoModel {
 
         if recalc {
             item.calc_data = item.raw_data.calc();
-            item.save_auto_model()?;
+            item.save_auto_model(&abs_path(path, "_auto_model.txt")?)?;
         } else {
             item.calc_data = DataFrame::from_path(&abs_path(path, "_auto_model.txt")?)?;
         };
 
         Ok(item)
-    }
-
-    fn save_auto_model(&self) -> Result<(), Box<dyn Error>> {
-        self.calc_data
-            .save_file(&abs_path(&self.source_path, "_auto_model.txt")?)
     }
 
     pub fn plot(&self, serial_number: &str) -> Result<(), Box<dyn Error>> {
@@ -122,6 +118,34 @@ impl ThermoModel {
             self.to_string().as_bytes(),
         )?;
         Ok(())
+    }
+
+    pub fn ct(&self) -> Result<(), Box<dyn Error>> {
+        use chrono::{Datelike, Timelike};
+
+        let dt = chrono::Local::now();
+        let f_name = format!(
+            "tpk-k_{}_{}-{}-{}_{}-{}.ct",
+            self.serial_number,
+            dt.year(),
+            dt.month(),
+            dt.day(),
+            dt.hour(),
+            dt.minute()
+        );
+        let path = std::env::current_dir()?.to_str().unwrap().to_owned() + "/" + &f_name;
+
+        self.save_auto_model(&path)
+    }
+
+    pub fn with_serial_number(&mut self, serial_number: &str) {
+        self.serial_number = serial_number.to_string();
+    }
+}
+
+impl ThermoModel {
+    fn save_auto_model(&self, path: &str) -> Result<(), Box<dyn Error>> {
+        self.calc_data.save_file(path)
     }
 }
 

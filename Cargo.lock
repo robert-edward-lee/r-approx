@@ -723,8 +723,9 @@ dependencies = [
 
 [[package]]
 name = "r-approx"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
+ "chrono",
  "clap",
  "opener",
  "plotters",

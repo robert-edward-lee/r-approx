@@ -43,9 +43,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let binding = String::default();
     let serial_number = args.get_one::<String>("serial_number").unwrap_or(&binding);
 
-    let model = ThermoModel::from_path(path, recalc)?;
+    let mut model = ThermoModel::from_path(path, recalc)?;
+    model.with_serial_number(serial_number);
+
     model.plot(serial_number)?;
     model.md()?;
+    model.ct()?;
 
     Ok(())
 }
