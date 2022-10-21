@@ -12,7 +12,7 @@ pub struct ThermoModel {
 }
 
 fn abs_path(path: &str, suffix: &str) -> Result<String, Box<dyn Error>> {
-    let abs_path = std::env::current_dir().unwrap().to_str().unwrap().to_owned() + "/" + path;
+    let abs_path = std::env::current_dir()?.to_str().unwrap().to_owned() + "/" + path;
 
     let chunks: Vec<&str> = abs_path.split('.').collect();
 
