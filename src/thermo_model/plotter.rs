@@ -43,9 +43,14 @@ pub fn plot(
     raw_data_y: Vec<(i32, i32)>,
     calc_data_y: Vec<(i32, i32)>,
 ) -> Result<(), Box<dyn Error>> {
+    use chrono::Datelike;
+
+    let dt = chrono::Local::now();
+    let header = format!("{} ({}.{}.{}г.)", header, dt.day(), dt.month(), dt.year());
+
     let canvas = BitMapBackend::new(path, resolution).into_drawing_area();
     canvas.fill(&WHITE)?;
-    let canvas = canvas.titled(header, (FONT, MAIN_HEADER_SIZE))?;
+    let canvas = canvas.titled(&header, (FONT, MAIN_HEADER_SIZE))?;
 
     let (upper, lower) = canvas.split_vertically((resolution.1 - MAIN_HEADER_SIZE) / 2);
 
