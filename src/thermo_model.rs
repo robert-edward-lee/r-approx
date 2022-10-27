@@ -31,31 +31,31 @@ impl std::fmt::Display for ThermoModel {
         for (i, _) in self.calc_data.rows.iter().enumerate() {
             write!(f, "  {:2} |", i)?;
         }
-        writeln!(f)?;
+        write!(f, "\r\n")?;
 
         write!(f, "|:-----|")?;
         for (_, _) in self.calc_data.rows.iter().enumerate() {
             write!(f, "----:|")?;
         }
-        writeln!(f)?;
+        write!(f, "\r\n")?;
 
         write!(f, "| temp |")?;
         for row in self.calc_data.rows.iter() {
             write!(f, " {:3} |", row.temp.unwrap())?;
         }
-        writeln!(f)?;
+        write!(f, "\r\n")?;
 
         write!(f, "| dx   |")?;
         for row in self.calc_data.rows.iter() {
             write!(f, " {:3} |", row.x.unwrap())?;
         }
-        writeln!(f)?;
+        write!(f, "\r\n")?;
 
         write!(f, "| dy   |")?;
         for row in self.calc_data.rows.iter() {
             write!(f, " {:3} |", row.y.unwrap())?;
         }
-        writeln!(f)?;
+        write!(f, "\r\n")?;
 
         Ok(())
     }

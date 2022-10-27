@@ -1,8 +1,8 @@
 use clap::{Arg, Command};
 use std::error::Error;
-use thermo_model::ThermoModel;
 
 mod thermo_model;
+use thermo_model::ThermoModel;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Command::new(env!("CARGO_PKG_NAME"))

@@ -11,3 +11,4 @@ trim_trailing_whitespace = true
 
 [test/**]
 insert_final_newline = false
+end_of_line = crlf

@@ -19,14 +19,14 @@ impl std::fmt::Display for DataFrame {
             return Ok(());
         }
 
-        writeln!(
+        write!(
             f,
-            "{};{};{}",
+            "{};{};{}\r\n",
             DIF_HEADERS[0], DIF_HEADERS[1], DIF_HEADERS[2]
         )?;
 
         for row in self.rows.iter().take(self.rows.len() - 1) {
-            writeln!(f, "{}", row)?;
+            write!(f, "{}\r\n", row)?;
         }
         write!(f, "{}", self.rows[self.rows.len() - 1])?;
 
@@ -164,7 +164,7 @@ fn median(mut data: Vec<i32>) -> Option<i32> {
 
 #[test]
 fn string_to_frame() {
-    let table = "temp;x;y\n12;34;56";
+    let table = "temp;x;y\r\n12;34;56";
     let frame = DataFrame::from_str(table).unwrap();
     assert_eq!(
         frame.rows,
@@ -175,7 +175,7 @@ fn string_to_frame() {
         }]
     );
 
-    let table = "temp;dx;dy\n12;34;56";
+    let table = "temp;dx;dy\r\n12;34;56";
     let frame = DataFrame::from_str(table).unwrap();
     assert_eq!(
         frame.rows,
@@ -186,7 +186,7 @@ fn string_to_frame() {
         }]
     );
 
-    let table = "temp;x;y\nnan;nan;nan\n12;34;56";
+    let table = "temp;x;y\r\nnan;nan;nan\r\n12;34;56";
     let frame = DataFrame::from_str(table).unwrap();
     assert_eq!(
         frame.rows,
@@ -207,7 +207,7 @@ fn frame_to_string() {
             y: Some(56),
         }],
     };
-    assert_eq!(frame.to_string(), "temp;dx;dy\n12;34;56".to_string());
+    assert_eq!(frame.to_string(), "temp;dx;dy\r\n12;34;56".to_string());
 
     let frame = DataFrame {
         rows: vec![DataRow {
@@ -216,7 +216,7 @@ fn frame_to_string() {
             y: Some(56),
         }],
     };
-    assert_eq!(frame.to_string(), "temp;dx;dy\n12;34;56".to_string());
+    assert_eq!(frame.to_string(), "temp;dx;dy\r\n12;34;56".to_string());
 
     let frame = DataFrame {
         rows: vec![DataRow {
@@ -225,7 +225,7 @@ fn frame_to_string() {
             y: Some(56),
         }],
     };
-    assert_eq!(frame.to_string(), "temp;dx;dy\nnan;34;56".to_string());
+    assert_eq!(frame.to_string(), "temp;dx;dy\r\nnan;34;56".to_string());
 }
 
 #[test]
