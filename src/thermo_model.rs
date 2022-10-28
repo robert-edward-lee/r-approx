@@ -62,7 +62,11 @@ impl std::fmt::Display for ThermoModel {
 }
 
 impl ThermoModel {
-    pub fn from_path(path: &str, recalc: bool) -> Result<Self, Box<dyn Error>> {
+    pub fn from_path(
+        path: &str,
+        recalc: bool,
+        optional_path: Option<&str>,
+    ) -> Result<Self, Box<dyn Error>> {
         let mut item = ThermoModel {
             raw_data: DataFrame::from_path(path)?,
             source_path: path.to_string(),
@@ -73,7 +77,10 @@ impl ThermoModel {
             item.calc_data = item.raw_data.calc();
             item.save_auto_model(&abs_path(path, "_auto_model.txt")?)?;
         } else {
-            item.calc_data = DataFrame::from_path(&abs_path(path, "_auto_model.txt")?)?;
+            item.calc_data = match optional_path {
+                Some(optional_path) => DataFrame::from_path(optional_path)?,
+                None => DataFrame::from_path(&abs_path(path, "_auto_model.txt")?)?,
+            }
         };
 
         Ok(item)
@@ -151,11 +158,11 @@ impl ThermoModel {
 
 #[test]
 fn full_test() {
-    let model = ThermoModel::from_path("test/test_data.csv", true).unwrap();
+    let model = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
     model.md().unwrap();
     model.plot().unwrap();
 
-    let model = ThermoModel::from_path("test/old_data.txt", true).unwrap();
+    let model = ThermoModel::from_path("test/old_data.txt", true, None).unwrap();
     model.md().unwrap();
     model.plot().unwrap();
 }

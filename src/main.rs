@@ -1,4 +1,4 @@
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 use std::error::Error;
 
 mod thermo_model;
@@ -22,7 +22,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .long("validate")
                 .value_name("CSV FILE")
                 .required_unless_present("predict")
-                .conflicts_with("predict"),
+                .conflicts_with("predict")
+                .action(ArgAction::Append)
+                .num_args(1..=2),
         )
         .arg(
             Arg::new("serial_number")
@@ -33,14 +35,31 @@ fn main() -> Result<(), Box<dyn Error>> {
         )
         .get_matches();
 
-    let recalc = args.contains_id("predict");
+    let mut recalc = false;
+    let mut path: &str = "";
+    let mut optional_path: Option<&str> = None;
 
-    let binding = "Something goes wrong".to_string();
-    let path = args
-        .get_one::<String>("predict")
-        .unwrap_or_else(|| args.get_one::<String>("validate").unwrap_or(&binding));
+    if args.contains_id("predict") {
+        recalc = true;
+        path = args
+            .get_one::<String>("predict")
+            .ok_or("Invalid argument")?;
+    }
 
-    let mut model = ThermoModel::from_path(path, recalc)?;
+    if args.contains_id("validate") {
+        let values: Vec<&str> = args
+            .get_many::<String>("validate")
+            .unwrap_or_default()
+            .map(|x| x.as_str())
+            .collect();
+
+        path = values[0];
+        if values.len() == 2 {
+            optional_path = Some(values[1]);
+        }
+    }
+
+    let mut model = ThermoModel::from_path(path, recalc, optional_path)?;
 
     if args.contains_id("serial_number") {
         model.with_serial_number(args.get_one::<String>("serial_number").unwrap());
