@@ -13,6 +13,11 @@ r-approx -p [CSV file]
 r-approx -v [CSV file]
 ```
 
+Валидация термоуводов с исправленными данными в другом файле:
+```
+r-approx -v [CSV file] [VALID CSV file]
+```
+
 Валидация термоуводов с исправленными данными и запись в `ct` файл:
 ```
 r-approx -v [CSV file] -s [SERIAL NUMBER]
