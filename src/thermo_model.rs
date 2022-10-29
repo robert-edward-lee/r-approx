@@ -1,3 +1,4 @@
+use chrono::{DateTime, Datelike, Local, Timelike};
 use std::error::Error;
 
 mod frame;
@@ -10,6 +11,7 @@ pub struct ThermoModel {
     calc_data: DataFrame,
     source_path: String,
     serial_number: String,
+    date: DateTime<Local>,
 }
 
 fn abs_path(path: &str, suffix: &str) -> Result<String, Box<dyn Error>> {
@@ -70,6 +72,7 @@ impl ThermoModel {
         let mut item = ThermoModel {
             raw_data: DataFrame::from_path(path)?,
             source_path: path.to_string(),
+            date: Local::now(),
             ..Default::default()
         };
 
@@ -87,13 +90,18 @@ impl ThermoModel {
     }
 
     pub fn plot(&self) -> Result<(), Box<dyn Error>> {
-        const RESOLUTION: (u32, u32) = (1800, 1100);
         let img_path = abs_path(&self.source_path, "_with_model.png")?;
+        let header = format!(
+            "{} ({}.{}.{})",
+            self.serial_number,
+            self.date.day(),
+            self.date.month(),
+            self.date.year()
+        );
 
         plotter::plot(
             &img_path,
-            &self.serial_number,
-            RESOLUTION,
+            &header,
             self.raw_data
                 .rows
                 .iter()
@@ -128,17 +136,14 @@ impl ThermoModel {
     }
 
     pub fn ct(&self) -> Result<(), Box<dyn Error>> {
-        use chrono::{Datelike, Timelike};
-
-        let dt = chrono::Local::now();
         let f_name = format!(
             "tpk-k_{}_{}-{}-{}_{}-{}.ct",
             self.serial_number,
-            dt.year(),
-            dt.month(),
-            dt.day(),
-            dt.hour(),
-            dt.minute()
+            self.date.year(),
+            self.date.month(),
+            self.date.day(),
+            self.date.hour(),
+            self.date.minute()
         );
         let path = std::env::current_dir()?.to_str().unwrap().to_owned() + "/" + &f_name;
 

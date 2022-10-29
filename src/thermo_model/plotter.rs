@@ -6,15 +6,17 @@ use plotters::{
 use std::cmp::{max, min};
 use std::error::Error;
 
+const RESOLUTION: (u32, u32) = (1800, 1100);
+
 const MAIN_HEADER_SIZE: u32 = 40;
 const FONT: &str = "sans-serif";
 const X_HEADER: &str = "ГН";
 const Y_HEADER: &str = "ВН";
 
 const CENTER_LINE_STYLE: ShapeStyle = ShapeStyle {
-    color: RGBAColor(BLACK.0, BLACK.1, BLACK.2, 1.0),
+    color: RGBAColor(BLACK.0, BLACK.1, BLACK.2, 0.8),
     filled: true,
-    stroke_width: 1,
+    stroke_width: 2,
 };
 const STEPPED_LINE_STYLE: ShapeStyle = ShapeStyle {
     color: RGBAColor(TEAL_400.0, TEAL_400.1, TEAL_400.2, 1.0),
@@ -37,22 +39,16 @@ const CALC_MARK_STYLE: ShapeStyle = ShapeStyle {
 pub fn plot(
     path: &str,
     header: &str,
-    resolution: (u32, u32),
     raw_data_x: Vec<(i32, i32)>,
     calc_data_x: Vec<(i32, i32)>,
     raw_data_y: Vec<(i32, i32)>,
     calc_data_y: Vec<(i32, i32)>,
 ) -> Result<(), Box<dyn Error>> {
-    use chrono::Datelike;
-
-    let dt = chrono::Local::now();
-    let header = format!("{} ({}.{}.{}г.)", header, dt.day(), dt.month(), dt.year());
-
-    let canvas = BitMapBackend::new(path, resolution).into_drawing_area();
+    let canvas = BitMapBackend::new(path, RESOLUTION).into_drawing_area();
     canvas.fill(&WHITE)?;
-    let canvas = canvas.titled(&header, (FONT, MAIN_HEADER_SIZE))?;
+    let canvas = canvas.titled(header, (FONT, MAIN_HEADER_SIZE))?;
 
-    let (upper, lower) = canvas.split_vertically((resolution.1 - MAIN_HEADER_SIZE) / 2);
+    let (upper, lower) = canvas.split_vertically((RESOLUTION.1 - MAIN_HEADER_SIZE) / 2);
 
     plot_area(upper, X_HEADER, raw_data_x, calc_data_x)?;
     plot_area(lower, Y_HEADER, raw_data_y, calc_data_y)?;
