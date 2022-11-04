@@ -158,24 +158,24 @@ impl Polynomial {
         Ok(Self(item))
     }
 
-    pub fn from_pairs<T>(mut pairs: Vec<(usize, T)>) -> Result<Self, Box<dyn Error>>
+    pub fn from_pairs<T>(pairs: Vec<(usize, T)>) -> Result<Self, Box<dyn Error>>
     where
         T: Into<f64> + Copy,
     {
+        // поиск одинаковых значений степени одночлена, что является ошибкой
         let mut uniques: Vec<usize> = pairs.iter().map(|(degree, _)| degree).cloned().collect();
         uniques.dedup();
         if uniques.len() != pairs.len() {
             Err("Degree collision")?
         }
-
-        pairs.sort_by_key(|(degree, _)| *degree);
+        // поиск степени будущего многочлена
         let max_degree = pairs
             .iter()
             .max_by_key(|(degree, _)| *degree)
             .ok_or("Cannot find max degree")?
             .0;
-
-        let mut item = Self::default();
+        // формирование объекта
+        let mut item = Self(Vec::<f64>::default());
         for i in 0..=max_degree {
             match pairs.iter().position(|(degree, _)| degree == &i) {
                 Some(index) => item.0.push(pairs[index].1.into()),
@@ -213,11 +213,16 @@ fn empty_vector() {
 #[test]
 fn arith() {
     let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(127, -1), (64, -2), (0, -1)]).unwrap();
+    assert_eq!(b, -a);
+
+    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
     let b = Polynomial::from_pairs(vec![(99, 23), (64, 21), (0, -9)]).unwrap();
     let c = Polynomial::from_pairs(vec![(127, 1), (99, 23), (64, 23), (0, -8)]).unwrap();
     assert_eq!(a + b, c);
 
     let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
-    let b = Polynomial::from_pairs(vec![(127, -1), (64, -2), (0, -1)]).unwrap();
-    assert_eq!(b, -a);
+    let b = Polynomial::from_pairs(vec![(64, 21), (99, 23), (0, -9)]).unwrap();
+    let c = Polynomial::from_pairs(vec![(99, -23), (127, 1), (64, -19), (0, 10)]).unwrap();
+    assert_eq!(a - b, c);
 }
