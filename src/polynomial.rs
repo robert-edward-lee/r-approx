@@ -136,6 +136,28 @@ impl std::ops::SubAssign<f64> for Polynomial {
 #[allow(dead_code, unused_variables)]
 // constructors
 impl Polynomial {
+    pub fn from_vec<T>(vec: Vec<T>) -> Result<Self, Box<dyn Error>>
+    where
+        T: Into<f64>,
+    {
+        let mut item: Vec<f64> = vec.into_iter().map(|a| a.into()).collect();
+
+        if item.last().ok_or("Must not be an empty vector")? == &0.0 {
+            let mut new_len = item.len()
+                - item
+                    .iter()
+                    .rev()
+                    .position(|&a| a != 0.0)
+                    .unwrap_or(item.len());
+            if new_len == 0 {
+                new_len = 1
+            }
+            item.resize(new_len, 0.0);
+        }
+
+        Ok(Self(item))
+    }
+
     pub fn from_pairs<T>(mut pairs: Vec<(usize, T)>) -> Result<Self, Box<dyn Error>>
     where
         T: Into<f64> + Copy,
@@ -176,11 +198,16 @@ impl Polynomial {
 // private
 impl Polynomial {}
 
-
 #[test]
 #[should_panic]
 fn degree_collision() {
     let _a = Polynomial::from_pairs(vec![(1, 0), (1, 2)]).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn empty_vector() {
+    let _a = Polynomial::from_vec(Vec::<f64>::default()).unwrap();
 }
 
 #[test]
