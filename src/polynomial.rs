@@ -1,8 +1,14 @@
 use std::error::Error;
 
 #[allow(dead_code)]
-#[derive(Debug, Default, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct Polynomial(Vec<f64>);
+
+impl Default for Polynomial {
+    fn default() -> Self {
+        Self(vec![0.0])
+    }
+}
 
 impl std::fmt::Display for Polynomial {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -10,10 +16,16 @@ impl std::fmt::Display for Polynomial {
             return write!(f, "<empty>");
         }
 
-        if self.0[self.0.len() - 1] != 0.0 {
-            write!(f, "{}x^{}", self.0[self.0.len() - 1], self.0.len() - 1)?;
+        let first = self.0[self.degree()];
+
+        if self.degree() == 0 {
+            write!(f, "{}", first)?;
+        } else if first == 1.0 {
+            write!(f, "x^{}", self.degree())?;
+        } else if first == -1.0 {
+            write!(f, "-x^{}", self.degree())?;
         } else {
-            write!(f, "0")?;
+            write!(f, "{}x^{}", first, self.degree())?;
         }
 
         for (i, coeff) in self.0.iter().take(self.0.len() - 1).enumerate().rev() {
@@ -28,6 +40,8 @@ impl std::fmt::Display for Polynomial {
                     if coeff < &0.0 { '-' } else { '+' },
                     coeff.abs()
                 )?;
+            } else if coeff.abs() == 1.0 {
+                write!(f, " {} x^{}", if coeff < &0.0 { '-' } else { '+' }, i)?;
             } else {
                 write!(
                     f,
