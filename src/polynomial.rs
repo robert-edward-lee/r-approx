@@ -71,9 +71,23 @@ impl std::ops::Add for Polynomial {
     }
 }
 
+impl std::ops::Add<f64> for Polynomial {
+    type Output = Self;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        self + Self(vec![rhs])
+    }
+}
+
 impl std::ops::AddAssign for Polynomial {
     fn add_assign(&mut self, rhs: Self) {
         *self = self.clone() + rhs;
+    }
+}
+
+impl std::ops::AddAssign<f64> for Polynomial {
+    fn add_assign(&mut self, rhs: f64) {
+        *self += Self(vec![rhs]);
     }
 }
 
@@ -85,9 +99,23 @@ impl std::ops::Sub for Polynomial {
     }
 }
 
+impl std::ops::Sub<f64> for Polynomial {
+    type Output = Self;
+
+    fn sub(self, rhs: f64) -> Self::Output {
+        self - Self(vec![rhs])
+    }
+}
+
 impl std::ops::SubAssign for Polynomial {
     fn sub_assign(&mut self, rhs: Self) {
         *self = self.clone() + -rhs;
+    }
+}
+
+impl std::ops::SubAssign<f64> for Polynomial {
+    fn sub_assign(&mut self, rhs: f64) {
+        *self -= Self(vec![rhs]);
     }
 }
 
