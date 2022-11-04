@@ -129,7 +129,7 @@ impl Polynomial {
         let mut uniques: Vec<usize> = pairs.iter().map(|(degree, _)| degree).cloned().collect();
         uniques.dedup();
         if uniques.len() != pairs.len() {
-            Err("Degree collision!")?
+            Err("Degree collision")?
         }
 
         pairs.sort_by_key(|(degree, _)| *degree);
@@ -162,6 +162,12 @@ impl Polynomial {
 // private
 impl Polynomial {}
 
+
+#[test]
+#[should_panic]
+fn degree_collision() {
+    let _a = Polynomial::from_pairs(vec![(1, 0), (1, 2)]).unwrap();
+}
 
 #[test]
 fn arith() {
