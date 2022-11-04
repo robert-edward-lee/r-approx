@@ -4,6 +4,8 @@ use std::error::Error;
 mod thermo_model;
 use thermo_model::ThermoModel;
 
+mod polynomial;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Command::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
