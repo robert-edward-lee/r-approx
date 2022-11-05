@@ -185,22 +185,9 @@ impl Polynomial {
     where
         T: Into<f64>,
     {
-        let mut item: Vec<f64> = vec.into_iter().map(|a| a.into()).collect();
-
-        if item.last().ok_or("Must not be an empty vector")? == &0.0 {
-            let mut new_len = item.len()
-                - item
-                    .iter()
-                    .rev()
-                    .position(|&a| a != 0.0)
-                    .unwrap_or(item.len());
-            if new_len == 0 {
-                new_len = 1
-            }
-            item.resize(new_len, 0.0);
-        }
-
-        Ok(Self(item))
+        let mut item = Self(vec.into_iter().map(|a| a.into()).collect());
+        item.cut_last_zeroes()?;
+        Ok(item)
     }
 
     /// формирование многочлена в формате `[(a, i), ...]`, где `a` - коэффициент при одночлене, `i` - его степень
@@ -231,6 +218,32 @@ impl Polynomial {
 
         Ok(item)
     }
+
+    /// формирование многочлена по интерполяционной формуле Лагранжа, входные данные в формате:
+    /// `[(x0, f(x0)), (x1, f(x1)), ..., (xn, f(xn))]`
+    pub fn lagrange<T>(pairs: Vec<(T, T)>, precision: usize) -> Result<Self, Box<dyn Error>>
+    where
+        T: Into<f64> + Copy,
+    {
+        let mut item = Self::default();
+
+        for i in 0..pairs.len() {
+            let xi: f64 = pairs[i].0.into();
+            let fi: f64 = pairs[i].1.into();
+
+            let mut li = Self::from_coeffs(vec![1])?;
+
+            for (j, (xj, fj)) in pairs.iter().enumerate() {
+                if i != j {
+                    let xj: f64 = (*xj).into();
+                    li *= Self::from_coeffs(vec![-xj, 1.0])? * (1.0 / (xi - xj));
+                }
+            }
+            item += li * fi;
+        }
+        item.cut_last_zeroes()?;
+        Ok(item)
+    }
 }
 
 #[allow(dead_code)]
@@ -250,7 +263,24 @@ impl Polynomial {
 }
 
 // private
-impl Polynomial {}
+impl Polynomial {
+    fn cut_last_zeroes(&mut self) -> Result<(), Box<dyn Error>> {
+        if self.0.last().ok_or("Must not be an empty vector")? == &0.0 {
+            let mut new_len = self.0.len()
+                - self
+                    .0
+                    .iter()
+                    .rev()
+                    .position(|&a| a != 0.0)
+                    .unwrap_or(self.0.len());
+            if new_len == 0 {
+                new_len = 1
+            }
+            self.0.resize(new_len, 0.0);
+        }
+        Ok(())
+    }
+}
 
 #[test]
 #[should_panic]
@@ -262,6 +292,13 @@ fn degree_collision() {
 #[should_panic]
 fn empty_vector() {
     let _a = Polynomial::from_coeffs(Vec::<f64>::default()).unwrap();
+}
+
+#[test]
+fn lagrange() {
+    let a = Polynomial::lagrange(vec![(0, 0), (1, 1), (2, 4), (3, 9)], 0).unwrap();
+    let b = Polynomial::from_pairs(vec![(1, 2)]).unwrap();
+    assert_eq!(a, b)
 }
 
 #[test]
