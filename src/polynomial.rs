@@ -260,6 +260,15 @@ impl Polynomial {
             Some(self.0[degree])
         }
     }
+
+    /// `f(x)` - вычисление значения полинома в точке
+    pub fn f(&self, x: f64) -> f64 {
+        let mut item = 0.0;
+        for (degree, coeff) in self.0.iter().enumerate() {
+            item += coeff * x.powi(degree as i32);
+        }
+        item
+    }
 }
 
 // private
@@ -331,4 +340,14 @@ fn arith() {
     ])
     .unwrap();
     assert_eq!(a * b, c);
+}
+
+#[test]
+fn calc_x() {
+    let poly = Polynomial::from_pairs(vec![(1, 2)]).unwrap();
+    assert_eq!(4.0, poly.f(2.0));
+
+    let poly = Polynomial::from_pairs(vec![(1, 5), (-1, 0)]).unwrap();
+    assert_eq!(0.0, poly.f(1.0));
+    assert_eq!(31.0, poly.f(2.0));
 }
