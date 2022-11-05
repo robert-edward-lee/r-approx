@@ -179,7 +179,9 @@ impl std::ops::MulAssign<f64> for Polynomial {
 #[allow(dead_code, unused_variables)]
 // constructors
 impl Polynomial {
-    pub fn from_vec<T>(vec: Vec<T>) -> Result<Self, Box<dyn Error>>
+    /// формирование многочлена в формате `[a0, a1, a2, ..., an]`, где n - степень многочлена, `а` -
+    /// коэффициент при соответствующих одночленах
+    pub fn from_coeffs<T>(vec: Vec<T>) -> Result<Self, Box<dyn Error>>
     where
         T: Into<f64>,
     {
@@ -201,12 +203,13 @@ impl Polynomial {
         Ok(Self(item))
     }
 
-    pub fn from_pairs<T>(pairs: Vec<(usize, T)>) -> Result<Self, Box<dyn Error>>
+    /// формирование многочлена в формате `[(a, i), ...]`, где `a` - коэффициент при одночлене, `i` - его степень
+    pub fn from_pairs<T>(pairs: Vec<(T, usize)>) -> Result<Self, Box<dyn Error>>
     where
         T: Into<f64> + Copy,
     {
         // поиск одинаковых значений степени одночлена, что является ошибкой
-        let mut uniques: Vec<usize> = pairs.iter().map(|(degree, _)| degree).cloned().collect();
+        let mut uniques: Vec<usize> = pairs.iter().map(|(_, degree)| degree).cloned().collect();
         uniques.dedup();
         if uniques.len() != pairs.len() {
             Err("Degree collision")?
@@ -214,14 +217,14 @@ impl Polynomial {
         // поиск степени будущего многочлена
         let max_degree = pairs
             .iter()
-            .max_by_key(|(degree, _)| *degree)
+            .max_by_key(|(_, degree)| *degree)
             .ok_or("Cannot find max degree")?
-            .0;
+            .1;
         // формирование объекта
         let mut item = Self(Vec::<f64>::default());
         for i in 0..=max_degree {
-            match pairs.iter().position(|(degree, _)| degree == &i) {
-                Some(index) => item.0.push(pairs[index].1.into()),
+            match pairs.iter().position(|(_, degree)| degree == &i) {
+                Some(index) => item.0.push(pairs[index].0.into()),
                 None => item.0.push(0.0),
             }
         }
@@ -252,42 +255,42 @@ impl Polynomial {}
 #[test]
 #[should_panic]
 fn degree_collision() {
-    let _a = Polynomial::from_pairs(vec![(1, 0), (1, 2)]).unwrap();
+    let _a = Polynomial::from_pairs(vec![(0, 1), (2, 1)]).unwrap();
 }
 
 #[test]
 #[should_panic]
 fn empty_vector() {
-    let _a = Polynomial::from_vec(Vec::<f64>::default()).unwrap();
+    let _a = Polynomial::from_coeffs(Vec::<f64>::default()).unwrap();
 }
 
 #[test]
 fn arith() {
-    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
-    let b = Polynomial::from_pairs(vec![(127, -1), (64, -2), (0, -1)]).unwrap();
+    let a = Polynomial::from_pairs(vec![(1, 127), (2, 64), (1, 0)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(-1, 127), (-2, 64), (-1, 0)]).unwrap();
     assert_eq!(b, -a);
 
-    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
-    let b = Polynomial::from_pairs(vec![(99, 23), (64, 21), (0, -9)]).unwrap();
-    let c = Polynomial::from_pairs(vec![(127, 1), (99, 23), (64, 23), (0, -8)]).unwrap();
+    let a = Polynomial::from_pairs(vec![(1, 127), (2, 64), (1, 0)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(23, 99), (21, 64), (-9, 0)]).unwrap();
+    let c = Polynomial::from_pairs(vec![(1, 127), (23, 99), (23, 64), (-8, 0)]).unwrap();
     assert_eq!(a + b, c);
 
-    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
-    let b = Polynomial::from_pairs(vec![(64, 21), (99, 23), (0, -9)]).unwrap();
-    let c = Polynomial::from_pairs(vec![(99, -23), (127, 1), (64, -19), (0, 10)]).unwrap();
+    let a = Polynomial::from_pairs(vec![(1, 127), (2, 64), (1, 0)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(21, 64), (23, 99), (-9, 0)]).unwrap();
+    let c = Polynomial::from_pairs(vec![(-23, 99), (1, 127), (-19, 64), (10, 0)]).unwrap();
     assert_eq!(a - b, c);
 
-    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
-    let b = Polynomial::from_pairs(vec![(99, 23), (64, 21), (0, -9)]).unwrap();
+    let a = Polynomial::from_pairs(vec![(1, 127), (2, 64), (1, 0)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(23, 99), (21, 64), (-9, 0)]).unwrap();
     let c = Polynomial::from_pairs(vec![
-        (226, 23),
-        (191, 21),
-        (163, 46),
-        (128, 42),
-        (127, -9),
-        (99, 23),
-        (64, 3),
-        (0, -9),
+        (23, 226),
+        (21, 191),
+        (46, 163),
+        (42, 128),
+        (-9, 127),
+        (23, 99),
+        (3, 64),
+        (-9, 0),
     ])
     .unwrap();
     assert_eq!(a * b, c);
