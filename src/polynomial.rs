@@ -2,7 +2,7 @@ use std::error::Error;
 
 #[allow(dead_code)]
 #[derive(Debug, PartialEq, Clone)]
-struct Polynomial(Vec<f64>);
+pub struct Polynomial(Vec<f64>);
 
 impl Default for Polynomial {
     fn default() -> Self {
@@ -221,7 +221,7 @@ impl Polynomial {
 
     /// формирование многочлена по интерполяционной формуле Лагранжа, входные данные в формате:
     /// `[(x0, f(x0)), (x1, f(x1)), ..., (xn, f(xn))]`
-    pub fn lagrange<T>(pairs: Vec<(T, T)>, precision: usize) -> Result<Self, Box<dyn Error>>
+    pub fn lagrange<T>(pairs: Vec<(T, T)>) -> Result<Self, Box<dyn Error>>
     where
         T: Into<f64> + Copy,
     {
@@ -305,7 +305,7 @@ fn empty_vector() {
 
 #[test]
 fn lagrange() {
-    let a = Polynomial::lagrange(vec![(0, 0), (1, 1), (2, 4), (3, 9)], 0).unwrap();
+    let a = Polynomial::lagrange(vec![(0, 0), (1, 1), (2, 4), (3, 9)]).unwrap();
     let b = Polynomial::from_pairs(vec![(1, 2)]).unwrap();
     assert_eq!(a, b)
 }
