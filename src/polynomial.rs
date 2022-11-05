@@ -133,6 +133,49 @@ impl std::ops::SubAssign<f64> for Polynomial {
     }
 }
 
+impl std::ops::Mul for Polynomial {
+    type Output = Self;
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut item = Self(Vec::<f64>::default());
+        let degree = self.degree() + rhs.degree();
+
+        for i in 0..=degree {
+            let mut coeff = 0.0;
+            for l in 0..=self.degree() {
+                for r in 0..=rhs.degree() {
+                    if l + r == i {
+                        coeff += self.0[l] * rhs.0[r];
+                    }
+                }
+            }
+            item.0.push(coeff);
+        }
+
+        item
+    }
+}
+
+impl std::ops::Mul<f64> for Polynomial {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        self * Self(vec![rhs])
+    }
+}
+
+impl std::ops::MulAssign for Polynomial {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = self.clone() * rhs;
+    }
+}
+
+impl std::ops::MulAssign<f64> for Polynomial {
+    fn mul_assign(&mut self, rhs: f64) {
+        *self *= Self(vec![rhs])
+    }
+}
+
 #[allow(dead_code, unused_variables)]
 // constructors
 impl Polynomial {
@@ -193,6 +236,14 @@ impl Polynomial {
     pub fn degree(&self) -> usize {
         self.0.len() - 1
     }
+
+    pub fn coeff(&self, degree: usize) -> Option<f64> {
+        if degree > self.degree() {
+            None
+        } else {
+            Some(self.0[degree])
+        }
+    }
 }
 
 // private
@@ -225,4 +276,19 @@ fn arith() {
     let b = Polynomial::from_pairs(vec![(64, 21), (99, 23), (0, -9)]).unwrap();
     let c = Polynomial::from_pairs(vec![(99, -23), (127, 1), (64, -19), (0, 10)]).unwrap();
     assert_eq!(a - b, c);
+
+    let a = Polynomial::from_pairs(vec![(127, 1), (64, 2), (0, 1)]).unwrap();
+    let b = Polynomial::from_pairs(vec![(99, 23), (64, 21), (0, -9)]).unwrap();
+    let c = Polynomial::from_pairs(vec![
+        (226, 23),
+        (191, 21),
+        (163, 46),
+        (128, 42),
+        (127, -9),
+        (99, 23),
+        (64, 3),
+        (0, -9),
+    ])
+    .unwrap();
+    assert_eq!(a * b, c);
 }
