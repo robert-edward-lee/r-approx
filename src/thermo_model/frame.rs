@@ -117,28 +117,33 @@ impl DataFrame {
 
     /// вычисление аппроксимированных координат
     pub fn calc(&self) -> Self {
-        let mut item = Self::default();
+        use crate::polynomial::Polynomial;
 
-        let (mut past_x, mut past_y) = (0, 0);
-        for temp in (-50..=70).step_by(6) {
-            let tail: Vec<(i32, i32)> = self
-                .rows
-                .iter()
-                .filter(|row| temp - 3 <= row.temp.unwrap() && row.temp.unwrap() <= temp + 3)
-                .map(|row| (row.x.unwrap(), row.y.unwrap()))
-                .collect();
+        let x_data: Vec<(i32, i32)> = self
+            .rows
+            .iter()
+            .map(|row| (row.temp.unwrap(), row.x.unwrap()))
+            .collect();
+        let poly_x = Polynomial::lagrange(x_data).unwrap();
+println!("poly_x: ({})", poly_x);
+        let y_data: Vec<(i32, i32)> = self
+            .rows
+            .iter()
+            .map(|row| (row.temp.unwrap(), row.y.unwrap()))
+            .collect();
+        let poly_y = Polynomial::lagrange(y_data).unwrap();
+println!("poly_y: ({})", poly_y);
+        let item: Vec<DataRow> = (-50..=70).step_by(6).map(|t|
 
-            let x = median(tail.iter().map(|(x, _)| *x).collect()).unwrap_or(past_x);
-            let y = median(tail.iter().map(|(_, y)| *y).collect()).unwrap_or(past_y);
-
-            item.rows.push(DataRow {
-                temp: Some(temp),
-                x: Some(x),
-                y: Some(y),
-            });
-            (past_x, past_y) = (x, y);
+        DataRow {
+            temp: Some(t),
+            x: Some(poly_x.f(t as f64) as i32),
+            y: Some(poly_y.f(t as f64) as i32),
         }
-        item
+
+        ).collect();
+
+        Self { rows: item }
     }
 
     /// сохранить csv файл

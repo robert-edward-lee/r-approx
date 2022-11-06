@@ -307,7 +307,18 @@ fn empty_vector() {
 fn lagrange() {
     let a = Polynomial::lagrange(vec![(0, 0), (1, 1), (2, 4), (3, 9)]).unwrap();
     let b = Polynomial::from_pairs(vec![(1, 2)]).unwrap();
-    assert_eq!(a, b)
+    assert_eq!(a, b);
+
+    let a = Polynomial::lagrange(vec![
+        (-1.5, -14.1014),
+        (-0.75, -0.931596),
+        (0.0, 0.0),
+        (0.75, 0.931596),
+        (1.5, 14.1014),
+    ])
+    .unwrap();
+    let b = Polynomial::from_pairs(vec![(4.834847604938271, 3), (-1.4774737777777778, 1)]).unwrap();
+    assert_eq!(a, b);
 }
 
 #[test]

@@ -163,11 +163,13 @@ impl ThermoModel {
 
 #[test]
 fn full_test() {
-    let model = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
-    model.md().unwrap();
-    model.plot().unwrap();
+    // let model = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
+    // model.md().unwrap();
+    // model.plot().unwrap();
 
     let model = ThermoModel::from_path("test/old_data.txt", true, None).unwrap();
     model.md().unwrap();
     model.plot().unwrap();
 }
+
+// cargo test --package r-approx --bin r-approx -- thermo_model::full_test --exact --nocapture
