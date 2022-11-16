@@ -138,12 +138,11 @@ impl std::ops::Mul for Polynomial {
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn mul(self, rhs: Self) -> Self::Output {
         let mut item = Self(Vec::<f64>::default());
-        let degree = self.degree() + rhs.degree();
 
-        for i in 0..=degree {
+        for i in 0..=(self.degree() + rhs.degree()) {
             let mut coeff = 0.0;
-            for l in 0..=self.degree() {
-                for r in 0..=rhs.degree() {
+            for l in 0..=std::cmp::min(i, self.degree()) {
+                for r in 0..=std::cmp::min(i, rhs.degree()) {
                     if l + r == i {
                         coeff += self.0[l] * rhs.0[r];
                     }
