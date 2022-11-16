@@ -209,7 +209,10 @@ impl Polynomial {
         // формирование объекта
         let mut item = Self(Vec::<f64>::default());
         for i in 0..=max_degree {
-            match pairs.iter().position(|(_, degree)| degree == &i) {
+            match pairs
+                .iter()
+                .position(|(coeff, degree)| degree == &i && (*coeff).into() != 0.0)
+            {
                 Some(index) => item.0.push(pairs[index].0.into()),
                 None => item.0.push(0.0),
             }
