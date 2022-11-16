@@ -119,7 +119,7 @@ impl DataFrame {
     pub fn calc(&self) -> Self {
         let mut item = Self::default();
 
-        let (mut past_x, mut past_y) = (0, 0);
+        let (mut past_x, mut past_y) = (self.rows[0].x.unwrap_or(0), self.rows[0].y.unwrap_or(0));
         for temp in (-50..=70).step_by(6) {
             let tail: Vec<(i32, i32)> = self
                 .rows
