@@ -136,5 +136,12 @@ fn plot_area(
         }
     }
 
+    let poly = crate::polynomial::Polynomial::lagrange(calc_data).unwrap();
+
+    chart.draw_series(LineSeries::new(
+        (-56..=76).map(|x| (x, poly.f(x as f64) as i32)),
+        CENTER_LINE_STYLE,
+    ))?;
+
     Ok(())
 }

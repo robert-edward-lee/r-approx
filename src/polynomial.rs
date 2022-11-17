@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use crate::thermo_model::ThermoModel;
+
 #[allow(dead_code)]
 #[derive(Debug, PartialEq, Clone)]
 pub struct Polynomial(Vec<f64>);
@@ -352,4 +354,28 @@ fn calc_x() {
     let poly = Polynomial::from_pairs(vec![(1, 5), (-1, 0)]).unwrap();
     assert_eq!(0.0, poly.f(1.0));
     assert_eq!(31.0, poly.f(2.0));
+}
+
+#[test]
+fn thermo() {
+    let thermo = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
+
+    let pairs_x: Vec<(i32, i32)> = thermo
+        .calc_data
+        .rows
+        .iter()
+        .map(|row| (row.temp.unwrap(), row.x.unwrap()))
+        .collect();
+    let pairs_y: Vec<(i32, i32)> = thermo
+        .calc_data
+        .rows
+        .iter()
+        .map(|row| (row.temp.unwrap(), row.y.unwrap()))
+        .collect();
+
+    let poly_x = Polynomial::lagrange(pairs_x).unwrap();
+    let poly_y = Polynomial::lagrange(pairs_y).unwrap();
+
+    println!("poly_x = {}", poly_x);
+    println!("poly_y = {}", poly_y);
 }

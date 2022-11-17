@@ -7,8 +7,8 @@ mod plotter;
 
 #[derive(Default, Debug)]
 pub struct ThermoModel {
-    raw_data: DataFrame,
-    calc_data: DataFrame,
+    pub raw_data: DataFrame,
+    pub calc_data: DataFrame,
     source_path: String,
     serial_number: String,
     date: DateTime<Local>,
@@ -163,9 +163,9 @@ impl ThermoModel {
 
 #[test]
 fn full_test() {
-    let model = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
-    model.md().unwrap();
-    model.plot().unwrap();
+    // let model = ThermoModel::from_path("test/test_data.csv", true, None).unwrap();
+    // model.md().unwrap();
+    // model.plot().unwrap();
 
     let model = ThermoModel::from_path("test/old_data.txt", true, None).unwrap();
     model.md().unwrap();
