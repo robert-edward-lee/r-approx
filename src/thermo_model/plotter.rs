@@ -9,7 +9,7 @@ use std::error::Error;
 const RESOLUTION: (u32, u32) = (1800, 1100);
 
 const MAIN_HEADER_SIZE: u32 = 40;
-const FONT: &str = "sans-serif";
+const FONT: &str = "Microsoft Sans Serif";
 const X_HEADER: &str = "ГН";
 const Y_HEADER: &str = "ВН";
 
