@@ -1,8 +1,11 @@
 use clap::{Arg, ArgAction, Command};
+use regex::Regex;
 use std::error::Error;
 
 mod thermo_model;
 use thermo_model::ThermoModel;
+
+const SERIAL_PATTERN: &str = r"[0-9]?БЛ[А-Я]*[0-9]*";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Command::new(env!("CARGO_PKG_NAME"))
@@ -31,7 +34,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .short('s')
                 .long("serial_number")
                 .value_name("SERIAL NUMBER")
-                .required(false),
+                .required(false)
+                .default_missing_value(None)
+                .num_args(0..=1),
         )
         .get_matches();
 
@@ -62,7 +67,25 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut model = ThermoModel::from_path(path, recalc, optional_path)?;
 
     if args.contains_id("serial_number") {
-        model.with_serial_number(args.get_one::<String>("serial_number").unwrap());
+        let serial = match args.get_one::<String>("serial_number") {
+            Some(serial) => serial.to_owned(),
+            None => {
+                let re = Regex::new(SERIAL_PATTERN)?;
+                let folder = std::env::current_dir()?
+                    .to_str()
+                    .ok_or("Something wrong: cannot get folder name")?
+                    .to_string();
+
+                re.captures_at(&folder, 0)
+                    .unwrap()
+                    .get(0)
+                    .ok_or("Something wrong: cannot detect serial in folder name")?
+                    .as_str()
+                    .to_string()
+            }
+        };
+
+        model.with_serial_number(&serial);
         model.ct()?;
     }
 

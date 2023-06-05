@@ -32,3 +32,8 @@ r-approx -v [CSV file] [VALID CSV file]
 ```
 r-approx -v [CSV file] -s [SERIAL NUMBER]
 ```
+
+Если в ключ `-s` не передать серийный номер, то приложение попытается взять его имя из имени папки:
+```
+r-approx -v [CSV file] -s
+```
