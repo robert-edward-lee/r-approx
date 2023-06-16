@@ -158,7 +158,7 @@ fn median(mut data: Vec<i32>) -> Option<i32> {
     if len % 2 == 1 {
         Some(data[len / 2])
     } else {
-        Some((data[len / 2] + data[len / 2]) / 2)
+        Some((data[len / 2 - 1] + data[len / 2]) / 2)
     }
 }
 
