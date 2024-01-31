@@ -5,7 +5,7 @@ use std::error::Error;
 mod thermo_model;
 use thermo_model::ThermoModel;
 
-const SERIAL_PATTERN: &str = r"[0-9]?БЛ[А-Я]*[0-9]*";
+const SERIAL_PATTERN: &str = r"[0-9]?БЛ[А-Я]?[0-9]*[А-Я]?";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Command::new(env!("CARGO_PKG_NAME"))
@@ -27,7 +27,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .required_unless_present("predict")
                 .conflicts_with("predict")
                 .action(ArgAction::Append)
-                .num_args(1..=2),
+                .min_values(1)
+                .max_values(2),
         )
         .arg(
             Arg::new("serial_number")
@@ -35,8 +36,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .long("serial_number")
                 .value_name("SERIAL NUMBER")
                 .required(false)
-                .default_missing_value(None)
-                .num_args(0..=1),
+                .min_values(0)
+                .max_values(1),
         )
         .get_matches();
 
@@ -73,13 +74,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let re = Regex::new(SERIAL_PATTERN)?;
                 let folder = std::env::current_dir()?
                     .to_str()
-                    .ok_or("Something wrong: cannot get folder name")?
+                    .ok_or("Something wrong: can not get folder name")?
                     .to_string();
 
                 re.captures_at(&folder, 0)
-                    .unwrap()
+                    .ok_or(
+                        "Can not detect serial pattern ".to_owned()
+                            + SERIAL_PATTERN
+                            + " in "
+                            + &folder,
+                    )?
                     .get(0)
-                    .ok_or("Something wrong: cannot detect serial in folder name")?
+                    .ok_or(
+                        "Can not detect serial pattern ".to_owned()
+                            + SERIAL_PATTERN
+                            + " in "
+                            + &folder,
+                    )?
                     .as_str()
                     .to_string()
             }
