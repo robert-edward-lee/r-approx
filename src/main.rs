@@ -78,19 +78,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .to_string();
 
                 re.captures_at(&folder, 0)
-                    .ok_or(
-                        "Can not detect serial pattern ".to_owned()
-                            + SERIAL_PATTERN
-                            + " in "
-                            + &folder,
-                    )?
+                    .ok_or(format!(
+                        "Can not detect serial pattern {SERIAL_PATTERN} in {folder}"
+                    ))?
                     .get(0)
-                    .ok_or(
-                        "Can not detect serial pattern ".to_owned()
-                            + SERIAL_PATTERN
-                            + " in "
-                            + &folder,
-                    )?
+                    .ok_or(format!(
+                        "Can not detect serial pattern {SERIAL_PATTERN} in {folder}"
+                    ))?
                     .as_str()
                     .to_string()
             }
