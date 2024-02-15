@@ -4,13 +4,20 @@
 
 ### Установка
 Перед сборкой проекта установить [`rustup`](https://win.rustup.rs/x86_64), при установке выбрав конфигурацию
-линковщика `x86_64-pc-windows-gnu` или `x86_64-pc-windows-msvc` в зависимости от имеющегося в системе.
+линковщика `x86_64-pc-windows-gnu` в зависимости от имеющегося в системе.
 Для установки набрать команду:
 ```
 cargo install --path .
 ```
 Установленная программа будет находится в папке `C:\Users\[user name]\.cargo\bin`
 
+Для сборки 32 битной версии:
+```bash
+rustup install stable-i686-pc-windows-gnu
+rustup default stable-i686-pc-windows-gnu
+cargo build --release
+rustup default stable-x86_64-pc-windows-gnu
+```
 
 ### Примеры:
 Расчёт термоуводов по "сырым данным":
